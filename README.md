@@ -5,6 +5,8 @@ A lightweight, SEO-friendly, and highly customizable widget that allows your web
 
 Built with **Shadcn UI** aesthetics, **JSON-LD (AIO)** context extraction, and **Mobile Native Deep Linking**.
 
+View on NPM: https://www.npmjs.com/package/ai-summarize-widget
+
 ## 🚀 Features
 
 - 🛡️ **Zero Auto-Paste:** Strict manual paste functionality ensures no URL-limit truncation.
@@ -27,6 +29,8 @@ Add this script to your HTML before the closing `</body>` tag:
 ```
 
 ### Method 2: Via NPM (For React, Vue, Next.js)
+
+You can find the official package here: ai-summarize-widget on npm
 
 ```bash
 npm install ai-summarize-widget
