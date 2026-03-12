@@ -2,21 +2,22 @@
 
 A tiny, CSS-safe widget that lets visitors send your articles to **ChatGPT, Claude, Gemini, or Perplexity** in one click.
 
-📦 **NPM:** https://www.npmjs.com/package/ai-summarize-widget
+[![npm](https://img.shields.io/npm/v/ai-summarize-widget)](https://www.npmjs.com/package/ai-summarize-widget)
+[![license](https://img.shields.io/npm/l/ai-summarize-widget)](../LICENSE)
 
 ---
 
-## ⚡ Setup in 5 Minutes
+## ⚡ Setup in 2 Steps
 
 ### Step 1 — Add the script
 
-Paste this just before the closing `</body>` tag of your HTML:
+Paste just before the closing `</body>` tag:
 
 ```html
 <script src="https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js"></script>
 ```
 
-> **Using NPM?**
+> **Using NPM / React / Next.js?**
 > ```bash
 > npm install ai-summarize-widget
 > ```
@@ -24,56 +25,51 @@ Paste this just before the closing `</body>` tag of your HTML:
 > import AISummarizeWidget from 'ai-summarize-widget';
 > ```
 
----
-
-### Step 2 — Initialize the widget
-
-Add this right below the script tag. That's it!
+### Step 2 — Initialize
 
 ```html
 <script>
   new AISummarizeWidget({
-    type: 'fixed'   // shows a ✨ floating button in the bottom-right corner
+    type: 'fixed'   // ✨ floating button in the bottom-right corner
   });
 </script>
 ```
 
-Open your page — a **✨ button** will appear in the bottom-right corner. Click it, pick an AI assistant, the article content is copied to your clipboard, and you're redirected automatically.
+Open your page — a **✨ button** appears. Click → pick an AI → article copied → redirected automatically.
 
 ---
 
 ## 🔧 Two Modes
 
-### Mode 1: Floating Button + Modal (`type: 'fixed'`)
+### Mode 1 — Floating Button + Modal (`type: 'fixed'`)
 
-A sticky button in the corner of the screen. Clicking it opens a centered dialog. **Best for blogs and news sites.**
+A sticky FAB in the corner. Click opens a centered dialog. **Best for blogs and article pages.**
 
 ```html
 <script>
   new AISummarizeWidget({
     type: 'fixed',
     theme: 'auto',           // 'auto' | 'dark' | 'light'
-    buttonColor: '#4f46e5',  // any hex color
+    buttonColor: '#4f46e5',
     lang: 'en'
   });
 </script>
 ```
 
-### Mode 2: Inline Button + Popover (`type: 'inline'`)
+### Mode 2 — Inline Button + Popover (`type: 'inline'`)
 
-Injects the button into an existing element on your page (e.g., alongside your share buttons).
+Injects the button into any existing element (e.g. your share bar).
 
 ```html
-<!-- Your existing share buttons -->
 <div class="share-area">
   <button>Share on X</button>
-  <!-- ✨ widget will be injected here -->
+  <!-- ✨ injected here -->
 </div>
 
 <script>
   new AISummarizeWidget({
     type: 'inline',
-    target: '.share-area',   // the element to inject into
+    target: '.share-area',
     theme: 'dark',
     buttonColor: '#10b981'
   });
@@ -82,11 +78,41 @@ Injects the button into an existing element on your page (e.g., alongside your s
 
 ---
 
-## 🌗 Theme (`theme`)
+## 🎯 Content Scope (`contentScope`)
+
+Restrict parsing to a specific element — perfect for news sites with multiple article cards.
+
+```js
+// News feed: 40 article cards on the page
+// inline → closest('.article') finds the right card automatically
+new AISummarizeWidget({
+  type: 'inline',
+  target: '.article .share-bar',
+  contentScope: '.article',
+});
+
+// Fixed FAB: picks the article most visible in the viewport
+new AISummarizeWidget({
+  type: 'fixed',
+  contentScope: '.article',
+});
+```
+
+| Situation | Behavior |
+|---|---|
+| `contentScope` not set | Default heuristic detection (unchanged) |
+| 1 match | That element is parsed |
+| `inline` + multiple matches | `inlineBtn.closest(sel)` → the card containing the button |
+| `fixed` + multiple matches | Element with the largest visible area in the viewport |
+| 0 matches | Falls back to default heuristic |
+
+---
+
+## 🌗 Theme
 
 | Value | Behavior |
 |---|---|
-| `'auto'` *(default)* | Follows the OS dark/light mode setting, updates in real-time |
+| `'auto'` *(default)* | Follows OS dark/light mode, updates in real-time |
 | `'dark'` | Always dark |
 | `'light'` | Always light |
 
@@ -96,23 +122,13 @@ Injects the button into an existing element on your page (e.g., alongside your s
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `type` | `String` | `'fixed'` | `'fixed'` (floating button + modal) or `'inline'` (inject into a container) |
-| `theme` | `String` | `'auto'` | Color theme: `'auto'`, `'dark'`, `'light'` |
-| `target` | `String` | `null` | **Required for `'inline'`**. CSS selector of the element to inject the button into, e.g. `'#share-bar'` |
-| `buttonColor` | `String` | `'#4f46e5'` | Button color (any HEX or RGB value) |
-| `lang` | `String` | *Auto-detected* | Language code: `'en'`, `'tr'`, `'de'`… Reads browser language if not set |
-| `redirectDelay` | `Number` | `1200` | Milliseconds to show the "Copied!" toast before redirecting to the AI assistant |
-
----
-
-## 🚀 Features
-
-- 🌗 **Dark / Light / Auto Theme** — Switches instantly when the OS theme changes
-- 🛡️ **Zero CSS Conflict** — All styles are scoped under `#aisw-root` with `all: unset` guards. Safe next to Tailwind, Bootstrap, or any global reset
-- 🔗 **AIO (AI SEO)** — Auto-extracts JSON-LD, OpenGraph, and Twitter Card metadata and injects it into the AI prompt as context
-- 🧹 **Smart Content Extraction** — Strips ads, navbars, sidebars, and comments. Pure article body only
-- 📱 **Mobile Support** — Bypasses popup blockers on iOS/Android, opens native apps directly
-- 🌍 **Multi-Language + RTL** — `en`, `tr`, `de`, `fr`, `es`, `zh`, `ru` and more; full RTL for `ar`, `fa`, `he`, `ur`
+| `type` | `String` | `'fixed'` | `'fixed'` or `'inline'` |
+| `theme` | `String` | `'auto'` | `'auto'`, `'dark'`, `'light'` |
+| `target` | `String` | `null` | **Required for `'inline'`**. CSS selector of the element to inject into |
+| `contentScope` | `String` | `null` | Restrict parsing to a CSS selector. Smart multi-element detection included |
+| `buttonColor` | `String` | `'#4f46e5'` | Button color (HEX or RGB) |
+| `lang` | `String` | *Auto* | Language code: `'en'`, `'tr'`… Reads browser language if omitted |
+| `redirectDelay` | `Number` | `1200` | ms before redirecting to the AI (shows "Copied!" toast first) |
 
 ---
 

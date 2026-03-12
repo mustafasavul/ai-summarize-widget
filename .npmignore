@@ -1,0 +1,10 @@
+# Dev / test files — excluded from npm publish
+test.html
+rollup.config.js
+.gitignore
+
+# Source (consumers use dist/)
+src/
+
+# Dev dependencies config
+node_modules/

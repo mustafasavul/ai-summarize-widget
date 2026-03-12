@@ -15,6 +15,7 @@ class AISummarizeWidget {
       buttonColor: options.buttonColor || '#4f46e5',
       lang: (options.lang || document.documentElement.lang || navigator.language || 'en').substring(0, 2).toLowerCase(),
       redirectDelay: 1200,
+      contentScope: options.contentScope || null, // CSS selector to restrict content parsing
       ...options
     };
     
@@ -90,6 +91,37 @@ class AISummarizeWidget {
     if (popover) popover.classList.remove('active');
   }
 
+  // Resolve the best-matching DOM element for contentScope
+  _resolveScope() {
+    const sel = this.options.contentScope;
+    if (!sel) return null;
+
+    const matches = [...document.querySelectorAll(sel)];
+    if (matches.length === 0) return null;
+    if (matches.length === 1) return matches[0];
+
+    // INLINE: walk up from the injected button — finds the enclosing article card
+    if (this.options.type === 'inline' && this.inlineBtn) {
+      const ancestor = this.inlineBtn.closest(sel);
+      if (ancestor) return ancestor;
+    }
+
+    // FIXED / fallback: pick the element with the largest visible area in the viewport
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let best = null, bestArea = 0;
+
+    for (const el of matches) {
+      const r = el.getBoundingClientRect();
+      const ix = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
+      const iy = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+      const area = ix * iy;
+      if (area > bestArea) { bestArea = area; best = el; }
+    }
+
+    return best; // null when nothing is in the viewport at all
+  }
+
   // Extract metadata via hybrid fallback approach
   extractMetadata() {
     let meta = {
@@ -139,6 +171,31 @@ class AISummarizeWidget {
   // Strict Content Extraction with DOM wrapping
   extractContent() {
     const junkSelectors = 'nav, footer, aside, script, style, iframe, .ads, .advertisement, .social-share, .related, .sidebar, .menu, .comments, [class*="ad-"], [id*="ad-"], [class*="widget"]';
+
+    // --- contentScope fast-path -------------------------------------------
+    // If the user pinpointed a specific element we skip heuristic detection
+    // entirely and parse only that element's clone.
+    const scoped = this._resolveScope();
+    if (scoped) {
+      const wrapper = document.createElement('div');
+      wrapper.appendChild(scoped.cloneNode(true));
+      wrapper.querySelectorAll(junkSelectors).forEach(el => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      });
+      const tags = wrapper.querySelectorAll('p, h1, h2, h3, h4, h5, li');
+      let text = '';
+      if (tags.length > 0) {
+        tags.forEach(t => {
+          const inner = (t.innerText || t.textContent).trim();
+          if (inner.length > 0) text += inner + '\n\n';
+        });
+      } else {
+        text = (wrapper.innerText || wrapper.textContent).trim();
+      }
+      return text.replace(/\n{3,}/g, '\n\n').trim();
+    }
+    // --- end contentScope fast-path ----------------------------------------
+
     let target = document.querySelector('article, .post-content, .entry-content, .article-body, #article-content');
     let isFallback = false;
 

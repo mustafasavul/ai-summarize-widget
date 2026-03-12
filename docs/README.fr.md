@@ -2,21 +2,22 @@
 
 Un petit widget CSS-safe qui permet aux visiteurs d'envoyer vos articles à **ChatGPT, Claude, Gemini ou Perplexity** en un clic.
 
-📦 **NPM:** https://www.npmjs.com/package/ai-summarize-widget
+[![npm](https://img.shields.io/npm/v/ai-summarize-widget)](https://www.npmjs.com/package/ai-summarize-widget)
+[![license](https://img.shields.io/npm/l/ai-summarize-widget)](../LICENSE)
 
 ---
 
-## ⚡ Installation en 5 minutes
+## ⚡ Installation en 2 étapes
 
 ### Étape 1 — Ajoutez le script
 
-Collez cette ligne juste avant la balise fermante `</body>` de votre HTML :
+Juste avant la balise fermante `</body>` :
 
 ```html
 <script src="https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js"></script>
 ```
 
-> **Vous utilisez NPM ?**
+> **NPM / React / Next.js ?**
 > ```bash
 > npm install ai-summarize-widget
 > ```
@@ -24,57 +25,52 @@ Collez cette ligne juste avant la balise fermante `</body>` de votre HTML :
 > import AISummarizeWidget from 'ai-summarize-widget';
 > ```
 
----
-
-### Étape 2 — Initialisez le widget
-
-Ajoutez ceci juste en dessous du script. C'est tout !
+### Étape 2 — Initialisez
 
 ```html
 <script>
   new AISummarizeWidget({
-    type: 'fixed',  // affiche un bouton ✨ flottant en bas à droite
+    type: 'fixed',  // bouton ✨ flottant en bas à droite
     lang: 'fr'
   });
 </script>
 ```
 
-Ouvrez votre page — un **bouton ✨** apparaîtra en bas à droite. Cliquez dessus, choisissez un assistant IA, le contenu est copié automatiquement et vous êtes redirigé.
+Ouvrez la page — un **bouton ✨** apparaît. Clic → choisissez une IA → contenu copié → redirection automatique.
 
 ---
 
 ## 🔧 Deux modes
 
-### Mode 1 : Bouton flottant + Modal (`type: 'fixed'`)
+### Mode 1 — Bouton flottant + Modal (`type: 'fixed'`)
 
-Un bouton fixe dans le coin de l'écran. Un clic ouvre une fenêtre de dialogue centrée. **Idéal pour les blogs et les sites d'actualités.**
+Un bouton fixe dans le coin. Un clic ouvre une fenêtre centrée. **Idéal pour les blogs et articles.**
 
 ```html
 <script>
   new AISummarizeWidget({
     type: 'fixed',
     theme: 'auto',           // 'auto' | 'dark' | 'light'
-    buttonColor: '#4f46e5',  // n'importe quelle couleur hex
+    buttonColor: '#4f46e5',
     lang: 'fr'
   });
 </script>
 ```
 
-### Mode 2 : Bouton intégré + Popover (`type: 'inline'`)
+### Mode 2 — Bouton intégré + Popover (`type: 'inline'`)
 
-Injecte le bouton dans un élément existant de votre page (ex. à côté de vos boutons de partage).
+Injecte le bouton dans un élément existant (ex. barre de partage).
 
 ```html
-<!-- Vos boutons de partage existants -->
 <div class="zone-partage">
   <button>Partager sur X</button>
-  <!-- ✨ le widget sera injecté ici -->
+  <!-- ✨ injecté ici -->
 </div>
 
 <script>
   new AISummarizeWidget({
     type: 'inline',
-    target: '.zone-partage',  // sélecteur CSS de l'élément cible
+    target: '.zone-partage',
     theme: 'dark',
     buttonColor: '#10b981'
   });
@@ -83,11 +79,41 @@ Injecte le bouton dans un élément existant de votre page (ex. à côté de vos
 
 ---
 
-## 🌗 Thème (`theme`)
+## 🎯 Zone de contenu (`contentScope`)
+
+Restreindre le parsing à un élément précis — utile pour les pages avec plusieurs articles.
+
+```js
+// Fil d'actualité : 40 cartes d'articles
+// inline → closest('.article') trouve la bonne carte automatiquement
+new AISummarizeWidget({
+  type: 'inline',
+  target: '.article .share-bar',
+  contentScope: '.article',
+});
+
+// FAB fixe : l'article le plus visible dans le viewport
+new AISummarizeWidget({
+  type: 'fixed',
+  contentScope: '.article',
+});
+```
+
+| Situation | Comportement |
+|---|---|
+| `contentScope` absent | Heuristique par défaut (inchangée) |
+| 1 correspondance | Cet élément est parsé |
+| `inline` + plusieurs | `inlineBtn.closest(sel)` → la carte contenant le bouton |
+| `fixed` + plusieurs | Élément avec la plus grande surface visible dans le viewport |
+| 0 correspondance | Retour à l'heuristique par défaut |
+
+---
+
+## 🌗 Thème
 
 | Valeur | Comportement |
 |---|---|
-| `'auto'` *(défaut)* | Suit le mode sombre/clair de l'OS et se met à jour en temps réel |
+| `'auto'` *(défaut)* | Suit l'OS, mise à jour en temps réel |
 | `'dark'` | Toujours sombre |
 | `'light'` | Toujours clair |
 
@@ -97,23 +123,13 @@ Injecte le bouton dans un élément existant de votre page (ex. à côté de vos
 
 | Option | Type | Défaut | Description |
 |---|---|---|---|
-| `type` | `String` | `'fixed'` | `'fixed'` (bouton flottant + modal) ou `'inline'` (injection dans un conteneur) |
-| `theme` | `String` | `'auto'` | Thème couleur : `'auto'`, `'dark'`, `'light'` |
-| `target` | `String` | `null` | **Obligatoire pour `'inline'`**. Sélecteur CSS de l'élément où injecter le bouton |
+| `type` | `String` | `'fixed'` | `'fixed'` ou `'inline'` |
+| `theme` | `String` | `'auto'` | `'auto'`, `'dark'`, `'light'` |
+| `target` | `String` | `null` | **Obligatoire pour `'inline'`**. Sélecteur CSS de l'élément cible |
+| `contentScope` | `String` | `null` | Restreindre le parsing à un sélecteur CSS. Détection multi-éléments intelligente |
 | `buttonColor` | `String` | `'#4f46e5'` | Couleur du bouton (HEX ou RGB) |
-| `lang` | `String` | *Auto-détecté* | Code langue : `'fr'`, `'en'`, `'de'`… Lit la langue du navigateur si non défini |
-| `redirectDelay` | `Number` | `1200` | Millisecondes avant la redirection vers l'assistant IA |
-
----
-
-## 🚀 Fonctionnalités
-
-- 🌗 **Thème Dark / Light / Auto** — Bascule instantanément quand le thème OS change
-- 🛡️ **Zéro conflit CSS** — Tous les styles isolés sous `#aisw-root` avec `all: unset`. Compatible Tailwind, Bootstrap et tout reset global
-- 🔗 **AIO (SEO pour l'IA)** — Extrait automatiquement JSON-LD, OpenGraph et Twitter Card en tant que contexte du prompt IA
-- 🧹 **Extraction intelligente** — Supprime publicités, navigation, sidebars et commentaires. Corps de l'article uniquement
-- 📱 **Support mobile** — Contourne les bloqueurs de popups sur iOS/Android, ouvre les apps natives directement
-- 🌍 **Multilingue + RTL** — `fr`, `en`, `de`, `tr`, `es`, `zh`, `ru` et plus ; RTL complet pour `ar`, `fa`, `he`, `ur`
+| `lang` | `String` | *Auto* | Code langue : `'fr'`, `'en'`… Lit la langue du navigateur si absent |
+| `redirectDelay` | `Number` | `1200` | ms avant la redirection vers l'IA |
 
 ---
 

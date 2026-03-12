@@ -1,6 +1,6 @@
 {
   "name": "ai-summarize-widget",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A smart, SEO-friendly AI summarization widget. Sends clean article content to ChatGPT, Claude, Gemini, and Perplexity without CSS bleeding.",
   "main": "dist/ai-summarize-widget.umd.js",
   "module": "dist/ai-summarize-widget.esm.js",
@@ -16,9 +16,15 @@
     "chatgpt",
     "claude",
     "gemini",
+    "perplexity",
     "seo",
+    "aio",
     "json-ld",
-    "button"
+    "dark-mode",
+    "content-scope",
+    "button",
+    "popup",
+    "modal"
   ],
   "author": "Mustafa Savul",
   "homepage": "https://github.com/mustafasavul/ai-summarize-widget",
@@ -27,6 +33,11 @@
     "url": "https://github.com/mustafasavul/ai-summarize-widget.git"
   },
   "type": "module",
+  "files": [
+    "dist/",
+    "docs/",
+    "README.md"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
