@@ -1,102 +1,122 @@
-```markdown
 # AI Summarize Widget ✨
 
-Web sitenizi ziyaret edenlerin makalelerinizi favori yapay zeka asistanlarına (ChatGPT, Claude, Gemini, Perplexity) özetleme için göndermesini sağlayan hafif, SEO dostu ve son derece özelleştirilebilir bir widget.
+Ziyaretçilerin makalelerinizi **ChatGPT, Claude, Gemini veya Perplexity**'e tek tıkla göndermesini sağlayan hafif, CSS-güvenli bir widget.
 
-**Shadcn UI** estetiği, **JSON-LD (AIO)** bağlam çıkarma ve **Mobil Native Deep Linking** ile geliştirilmiştir.
-
-## 🚀 Özellikler
-
-- 🛡️ **Otomatik Yapıştırma Yok:** Katı manuel yapıştırma işlevi URL limit kesintisini önler.
-- 🔗 **AIO (AI SEO) Desteği:** Site adı, yazar ve URL'yi yapay zeka için bağlam olarak enjekte etmek üzere JSON-LD Schema ve Meta etiketlerini otomatik olarak çıkarır.
-- 🧹 **Akıllı Temizlik:** Reklamları, navigasyon çubuklarını, kenar çubuklarını ve yorumları yok sayar. Yalnızca saf makale gövdesini çıkarır.
-- 📱 **Mobil Deep Linking:** Mobil açılır pencere engelleyicilerini atlar ve yerel yapay zeka uygulamalarını (iOS/Android) sorunsuz açar.
-- 🌍 **Çoklu Dil ve RTL:** `en`, `tr`, `es`, `zh`, `de`, `fr`, `it`, `pt`, `ru`, `nl` dillerini otomatik algılar. RTL düzenleri (`ar`, `fa`, `he`, `ur`) tam desteklenir.
-- 🎨 **CSS Sızıntısı Yok:** Web sitenizin CSS'i ile asla çakışmayacak tamamen kapsüllenmiş stiller.
+📦 **NPM:** https://www.npmjs.com/package/ai-summarize-widget
 
 ---
 
-## 📦 Kurulum
+## ⚡ 5 Dakikada Kurulum
 
-### Yöntem 1: CDN ile (Düz HTML/JS için en kolay)
-Bu scripti HTML dosyanızda `</body>` etiketinden önce ekleyin:
+### Adım 1 — Script'i sayfanıza ekleyin
+
+HTML dosyanızın `</body>` kapanma etiketinden hemen önce şunu yapıştırın:
 
 ```html
-<script src="[https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js](https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js)"></script>
-
+<script src="https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js"></script>
 ```
 
-### Yöntem 2: NPM ile (React, Vue, Next.js için)
-
-```bash
-npm install ai-summarize-widget
-
-```
-
-```javascript
-import AISummarizeWidget from 'ai-summarize-widget';
-
-```
+> **NPM kullanıyorsanız:**
+> ```bash
+> npm install ai-summarize-widget
+> ```
+> ```js
+> import AISummarizeWidget from 'ai-summarize-widget';
+> ```
 
 ---
 
-## 💻 Kullanım ve Uygulama Türleri
+### Adım 2 — Widget'ı başlatın
 
-UI/UX ihtiyaçlarınıza göre bu widget'ı web sitenize iki farklı şekilde entegre edebilirsiniz.
+Script'in hemen altına şunu ekleyin. Hepsi bu kadar!
 
-### Tip 1: Sabit Yüzen Buton ve Modal (Varsayılan)
+```html
+<script>
+  new AISummarizeWidget({
+    type: 'fixed',   // sağ altta yüzen ✨ butonu açar
+    lang: 'tr'       // opsiyonel: Türkçe arayüz
+  });
+</script>
+```
 
-Ekranın köşesine yüzen bir aksiyon butonu (FAB) yerleştirir. Tıklandığında ortalanmış, şık bir modal açar. Bloglar ve uzun form haber makaleleri için idealdir.
+Sayfanızı açın — sağ alt köşede **✨ butonu** görünecek. Tıklayın, bir AI seçin, içerik otomatik kopyalanır ve AI'ya yönlendirilirsiniz.
+
+---
+
+## 🔧 İki Kullanım Modu
+
+### Mod 1: Yüzen Buton + Modal (`type: 'fixed'`)
+
+Ekranın bir köşesinde sabit duran buton. Tıklanınca ortada bir dialog açılır. **Bloglar ve haber siteleri** için idealdir.
 
 ```html
 <script>
   new AISummarizeWidget({
     type: 'fixed',
-    position: 'bottom-right', // 'bottom-left', 'top-right', 'top-left'
-    buttonColor: '#4f46e5',   // Marka renginiz
-    lang: 'tr'                // Türkçe zorlar (isteğe bağlı)
+    theme: 'auto',           // 'auto' | 'dark' | 'light'
+    buttonColor: '#4f46e5',  // buton rengi (marka renginiz)
+    lang: 'tr'
   });
 </script>
-
 ```
 
-### Tip 2: Satır İçi Buton ve Popover
+### Mod 2: Satır İçi Buton + Popover (`type: 'inline'`)
 
-Butonu doğrudan DOM'unuzun belirli bir bölümüne (ör. sosyal paylaşım butonlarınızın veya makale başlığınızın yanına) yerleştirir. Tıklandığında, butona bağlı bağlamsal bir popover açar.
+Butonu, sayfanızdaki mevcut bir alana (örn. paylaşım butonlarınızın yanına) yerleştirir.
 
 ```html
-<div class="my-share-buttons">
-    <button>X'te Paylaş</button>
-    </div>
+<!-- Paylaşım butonlarınız -->
+<div class="paylas-alani">
+  <button>X'te Paylaş</button>
+  <!-- ✨ widget buraya enjekte edilir -->
+</div>
 
 <script>
   new AISummarizeWidget({
     type: 'inline',
-    target: '.my-share-buttons', // Butonun görüneceği CSS seçicisi
+    target: '.paylas-alani',  // enjekte edilecek alan
+    theme: 'dark',
     buttonColor: '#10b981'
   });
 </script>
-
 ```
 
 ---
 
-## ⚙️ Yapılandırma Seçenekleri
+## 🌗 Tema Ayarı (`theme`)
 
-Widget'ı başlatma sırasında bir seçenek nesnesi geçirerek kolayca özelleştirebilirsiniz.
+| Değer | Ne yapar? |
+|---|---|
+| `'auto'` *(varsayılan)* | İşletim sistemi karanlık/aydınlık modunu takip eder, anlık değişir |
+| `'dark'` | Her zaman karanlık tema |
+| `'light'` | Her zaman aydınlık tema |
+
+---
+
+## ⚙️ Tüm Seçenekler
 
 | Seçenek | Tip | Varsayılan | Açıklama |
-| --- | --- | --- | --- |
-| **`type`** | `String` | `'fixed'` | Render modu. Yüzen buton/modal için `'fixed'`, belirli bir kapsayıcıya popover ile yerleştirmek için `'inline'` kullanın. |
-| **`target`** | `String` | `null` | **`type` `'inline'` ise zorunludur.** Butonun ekleneceği DOM öğesinin CSS seçicisi (ör. `'.article-actions'`). |
-| **`position`** | `String` | `'bottom-right'` | `'fixed'` tipi için konumlandırma. Seçenekler: `'bottom-right'`, `'bottom-left'`, `'top-right'`, `'top-left'`. |
-| **`buttonColor`** | `String` | `'#4f46e5'` | Widget butonları ve ilerleme çubukları için marka kimliğinize uyacak HEX veya RGB renk kodu. |
-| **`lang`** | `String` | *Otomatik algılanır* | Belirli bir dili zorlar. Belirtilmezse `<html lang="x">` özniteliğini veya kullanıcının tarayıcı dilini otomatik okur. |
-| **`redirectDelay`** | `Number` | `1200` | Kullanıcıyı yapay zeka asistanına yönlendirmeden önce "Kopyalandı" toast animasyonunu görmesine izin veren gecikme (milisaniye cinsinden). |
+|---|---|---|---|
+| `type` | `String` | `'fixed'` | `'fixed'` (yüzen buton+modal) veya `'inline'` (belirli alana enjeksiyon) |
+| `theme` | `String` | `'auto'` | Renk teması: `'auto'`, `'dark'`, `'light'` |
+| `target` | `String` | `null` | `type:'inline'` için **zorunlu**. Butonun ekleneceği CSS seçicisi, örn. `'#paylaş'` |
+| `buttonColor` | `String` | `'#4f46e5'` | Butonun rengi (HEX veya RGB) |
+| `lang` | `String` | *Otomatik* | Dil kodu: `'tr'`, `'en'`, `'de'`… Belirtilmezse tarayıcı dilini okur |
+| `redirectDelay` | `Number` | `1200` | "Kopyalandı" bildirimi gösterildikten kaç ms sonra AI'ya yönlendirileceği |
+
+---
+
+## 🚀 Özellikler
+
+- 🌗 **Dark / Light / Auto Tema** — OS teması değişince widget anlık geçiş yapar
+- 🛡️ **Sıfır CSS Çakışması** — Tüm stiller `#aisw-root` altında izole, `all: unset` korumalıdır. Tailwind, Bootstrap veya herhangi bir global reset ile sorunsuz çalışır
+- 🔗 **AIO (AI SEO)** — JSON-LD, OpenGraph ve Twitter Card metadata'sını otomatik çeker, AI prompt'una bağlam olarak ekler
+- 🧹 **Akıllı İçerik Temizliği** — Reklam, navigasyon, sidebar ve yorumları ayıklar; sadece makale gövdesini gönderir
+- 📱 **Mobil Desteği** — iOS/Android'de popup engelleyicileri aşar, native uygulamaları doğrudan açar
+- 🌍 **Çoklu Dil + RTL** — `tr`, `en`, `de`, `fr`, `es`, `zh`, `ru` ve daha fazlası; `ar`, `fa`, `he`, `ur` için tam RTL desteği
 
 ---
 
 ## 📄 Lisans
 
-MIT Lisansı © 2026
-```
+MIT © 2026 Mustafa Savul

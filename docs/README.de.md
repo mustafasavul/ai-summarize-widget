@@ -1,102 +1,122 @@
-```markdown
 # AI Summarize Widget ✨
 
-Ein leichtgewichtiges, SEO-freundliches und hochgradig anpassbares Widget, mit dem Ihre Website-Besucher Ihre Artikel an ihre bevorzugten KI-Assistenten (ChatGPT, Claude, Gemini, Perplexity) zur Zusammenfassung senden können.
+Ein kleines, CSS-sicheres Widget, mit dem Besucher Ihre Artikel mit einem Klick an **ChatGPT, Claude, Gemini oder Perplexity** senden können.
 
-Entwickelt mit **Shadcn UI**-Ästhetik, **JSON-LD (AIO)**-Kontextextraktion und **Mobile Native Deep Linking**.
-
-## 🚀 Funktionen
-
-- 🛡️ **Kein Auto-Einfügen:** Strenge manuelle Einfügefunktion verhindert URL-Limit-Kürzungen.
-- 🔗 **AIO (AI SEO) Unterstützung:** Extrahiert automatisch JSON-LD Schema und Meta-Tags, um Ihren Seitennamen, Autor und URL als Kontext für die KI zu injizieren.
-- 🧹 **Intelligente Bereinigung:** Ignoriert Werbung, Navigationsleisten, Sidebars und Kommentare. Extrahiert nur den reinen Artikelinhalt.
-- 📱 **Mobile Deep Linking:** Umgeht mobile Pop-up-Blocker und öffnet nahtlos native KI-Apps (iOS/Android).
-- 🌍 **Mehrsprachig & RTL:** Erkennt automatisch `en`, `tr`, `es`, `zh`, `de`, `fr`, `it`, `pt`, `ru`, `nl`. Vollständige Unterstützung für RTL-Layouts (`ar`, `fa`, `he`, `ur`).
-- 🎨 **Kein CSS-Bleeding:** Vollständig gekapselte Styles, die niemals mit dem CSS Ihrer Website kollidieren.
+📦 **NPM:** https://www.npmjs.com/package/ai-summarize-widget
 
 ---
 
-## 📦 Installation
+## ⚡ Setup in 5 Minuten
 
-### Methode 1: Via CDN (Am einfachsten für reines HTML/JS)
-Fügen Sie dieses Script vor dem schließenden `</body>`-Tag in Ihre HTML-Datei ein:
+### Schritt 1 — Script einbinden
+
+Fügen Sie diese Zeile direkt vor dem schließenden `</body>`-Tag Ihrer HTML-Seite ein:
 
 ```html
-<script src="[https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js](https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js)"></script>
-
+<script src="https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js"></script>
 ```
 
-### Methode 2: Via NPM (Für React, Vue, Next.js)
-
-```bash
-npm install ai-summarize-widget
-
-```
-
-```javascript
-import AISummarizeWidget from 'ai-summarize-widget';
-
-```
+> **NPM-Nutzer:**
+> ```bash
+> npm install ai-summarize-widget
+> ```
+> ```js
+> import AISummarizeWidget from 'ai-summarize-widget';
+> ```
 
 ---
 
-## 💻 Verwendung & Implementierungstypen
+### Schritt 2 — Widget initialisieren
 
-Sie können dieses Widget je nach Ihren UI/UX-Anforderungen auf zwei verschiedene Arten in Ihre Website integrieren.
+Fügen Sie dies direkt unter dem Script-Tag hinzu. Das war's!
 
-### Typ 1: Fixer Schwebender Button & Modal (Standard)
+```html
+<script>
+  new AISummarizeWidget({
+    type: 'fixed',  // zeigt einen ✨ Schwebeschaltfläche unten rechts
+    lang: 'de'
+  });
+</script>
+```
 
-Platziert einen schwebenden Aktionsbutton (FAB) in der Ecke des Bildschirms. Bei Klick öffnet sich ein zentriertes, elegantes Modal. Ideal für Blogs und lange Nachrichtenartikel.
+Öffnen Sie Ihre Seite — ein **✨ Button** erscheint unten rechts. Klicken Sie darauf, wählen Sie einen KI-Assistenten, der Inhalt wird automatisch kopiert und Sie werden weitergeleitet.
+
+---
+
+## 🔧 Zwei Modi
+
+### Modus 1: Schwebender Button + Modal (`type: 'fixed'`)
+
+Ein fixer Button in der Ecke. Klicken öffnet einen zentrierten Dialog. **Ideal für Blogs und Nachrichtenwebsites.**
 
 ```html
 <script>
   new AISummarizeWidget({
     type: 'fixed',
-    position: 'bottom-right', // 'bottom-left', 'top-right', 'top-left'
-    buttonColor: '#4f46e5',   // Ihre Markenfarbe
-    lang: 'de'                // Erzwingt Deutsch (optional)
+    theme: 'auto',           // 'auto' | 'dark' | 'light'
+    buttonColor: '#4f46e5',  // beliebige Farbe
+    lang: 'de'
   });
 </script>
-
 ```
 
-### Typ 2: Inline-Button & Popover
+### Modus 2: Inline-Button + Popover (`type: 'inline'`)
 
-Fügt den Button direkt in einen bestimmten Teil Ihres DOM ein (z. B. neben Ihren Social-Share-Buttons oder dem Artikelkopf). Bei Klick öffnet sich ein kontextbezogener Popover am Button.
+Fügt den Button in ein vorhandenes Element Ihrer Seite ein (z. B. neben Ihren Share-Buttons).
 
 ```html
-<div class="my-share-buttons">
-    <button>Auf X teilen</button>
-    </div>
+<!-- Vorhandene Share-Buttons -->
+<div class="share-bereich">
+  <button>Auf X teilen</button>
+  <!-- ✨ Widget wird hier eingefügt -->
+</div>
 
 <script>
   new AISummarizeWidget({
     type: 'inline',
-    target: '.my-share-buttons', // CSS-Selektor, wo der Button erscheinen soll
+    target: '.share-bereich',   // CSS-Selektor des Zielelements
+    theme: 'dark',
     buttonColor: '#10b981'
   });
 </script>
-
 ```
 
 ---
 
-## ⚙️ Konfigurationsoptionen
+## 🌗 Theme (`theme`)
 
-Sie können das Widget leicht anpassen, indem Sie bei der Initialisierung ein Optionsobjekt übergeben.
+| Wert | Verhalten |
+|---|---|
+| `'auto'` *(Standard)* | Folgt dem Hell-/Dunkelmodus des Betriebssystems, aktualisiert sich in Echtzeit |
+| `'dark'` | Immer dunkles Theme |
+| `'light'` | Immer helles Theme |
+
+---
+
+## ⚙️ Alle Optionen
 
 | Option | Typ | Standard | Beschreibung |
-| --- | --- | --- | --- |
-| **`type`** | `String` | `'fixed'` | Der Rendermodus. Verwenden Sie `'fixed'` für einen schwebenden Button/Modal oder `'inline'` zur Einbettung in einen bestimmten Container mit Popover. |
-| **`target`** | `String` | `null` | **Erforderlich, wenn `type` `'inline'` ist.** Der CSS-Selektor des DOM-Elements, an das der Button angehängt wird (z. B. `'.article-actions'`). |
-| **`position`** | `String` | `'bottom-right'` | Positionierung für den Typ `'fixed'`. Optionen: `'bottom-right'`, `'bottom-left'`, `'top-right'`, `'top-left'`. |
-| **`buttonColor`** | `String` | `'#4f46e5'` | Der HEX- oder RGB-Farbcode für die Widget-Buttons und Fortschrittsbalken zur Anpassung an Ihre Markenidentität. |
-| **`lang`** | `String` | *Automatisch erkannt* | Erzwingt eine bestimmte Sprache. Wenn weggelassen, liest es automatisch das `<html lang="x">`-Attribut oder die Browser-Sprache des Nutzers. |
-| **`redirectDelay`** | `Number` | `1200` | Die Verzögerung (in Millisekunden) vor der Weiterleitung zum KI-Assistenten, damit der Nutzer die „Kopiert“-Toast-Animation sehen kann. |
+|---|---|---|---|
+| `type` | `String` | `'fixed'` | `'fixed'` (schwebender Button + Modal) oder `'inline'` (in Container einfügen) |
+| `theme` | `String` | `'auto'` | Farbthema: `'auto'`, `'dark'`, `'light'` |
+| `target` | `String` | `null` | **Pflicht bei `'inline'`**. CSS-Selektor des Zielelements, z. B. `'#share-leiste'` |
+| `buttonColor` | `String` | `'#4f46e5'` | Buttonfarbe (beliebiger HEX- oder RGB-Wert) |
+| `lang` | `String` | *Automatisch* | Sprachcode: `'de'`, `'en'`, `'tr'`… Liest Browsersprache falls nicht angegeben |
+| `redirectDelay` | `Number` | `1200` | Millisekunden vor der Weiterleitung zum KI-Assistenten |
+
+---
+
+## 🚀 Funktionen
+
+- 🌗 **Dark / Light / Auto Theme** — Wechselt sofort wenn sich das OS-Theme ändert
+- 🛡️ **Kein CSS-Konflikt** — Alle Stile unter `#aisw-root` isoliert mit `all: unset`. Sicher neben Tailwind, Bootstrap oder jedem globalen Reset
+- 🔗 **AIO (KI-SEO)** — Extrahiert automatisch JSON-LD, OpenGraph und Twitter Card Metadaten und fügt sie dem KI-Prompt als Kontext hinzu
+- 🧹 **Intelligente Inhaltsextraktion** — Entfernt Werbung, Navigation, Sidebars und Kommentare. Nur der reine Artikeltext
+- 📱 **Mobile-Unterstützung** — Umgeht Popup-Blocker auf iOS/Android, öffnet native Apps direkt
+- 🌍 **Mehrsprachig + RTL** — `de`, `en`, `tr`, `fr`, `es`, `zh`, `ru` und mehr; vollständiges RTL für `ar`, `fa`, `he`, `ur`
 
 ---
 
 ## 📄 Lizenz
 
-MIT-Lizenz © 2026
-```
+MIT © 2026 Mustafa Savul

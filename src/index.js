@@ -212,6 +212,13 @@ class AISummarizeWidget {
           0 0 0 1px rgba(0,0,0,0.04),
           0 4px 6px -1px rgba(0,0,0,0.06),
           0 20px 32px -8px rgba(0,0,0,0.14);
+        /* Popover tokens – light */
+        --aisw-pop-bg: #ffffff;
+        --aisw-pop-border: #e4e4e7;
+        --aisw-pop-text: #09090b;
+        --aisw-pop-btn-bg: #fafafa;
+        --aisw-pop-btn-hover: #f0f0f2;
+        --aisw-pop-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
       }
 
       /* Dark – forced via .aisw-dark class */
@@ -237,6 +244,13 @@ class AISummarizeWidget {
           0 0 0 1px rgba(255,255,255,0.04),
           0 4px 6px -1px rgba(0,0,0,0.3),
           0 20px 32px -8px rgba(0,0,0,0.5);
+        /* Popover tokens – dark */
+        --aisw-pop-bg: #09090b;
+        --aisw-pop-border: #27272a;
+        --aisw-pop-text: #fafafa;
+        --aisw-pop-btn-bg: #18181b;
+        --aisw-pop-btn-hover: #27272a;
+        --aisw-pop-shadow: 0 20px 40px rgba(0,0,0,0.45), 0 1px 3px rgba(0,0,0,0.3);
       }
 
       /* ─── SCOPING LAYER: every rule lives under #aisw-root ─── */
@@ -471,15 +485,15 @@ class AISummarizeWidget {
         display: none;
         position: absolute;
         z-index: 2147483641;
-        background: #09090b;
-        border: 1px solid #27272a;
+        background: var(--aisw-pop-bg);
+        border: 1px solid var(--aisw-pop-border);
         border-radius: 14px;
         padding: 16px;
         min-width: 230px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.45), 0 1px 3px rgba(0,0,0,0.3);
+        box-shadow: var(--aisw-pop-shadow);
         font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
                      Roboto, sans-serif;
-        color: #fafafa;
+        color: var(--aisw-pop-text);
         opacity: 0;
         transform: translateY(8px) scale(0.97);
         transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.36,0.64,1);
@@ -496,7 +510,7 @@ class AISummarizeWidget {
         display: block;
         font-size: 15px;
         font-weight: 700;
-        color: #fafafa;
+        color: var(--aisw-pop-text);
         letter-spacing: -0.2px;
       }
       #aisw-root .aisw-popover-grid {
@@ -512,9 +526,9 @@ class AISummarizeWidget {
         display: flex;
         align-items: center;
         gap: 9px;
-        background: #18181b;
-        border: 1px solid #27272a;
-        color: #fafafa;
+        background: var(--aisw-pop-btn-bg);
+        border: 1px solid var(--aisw-pop-border);
+        color: var(--aisw-pop-text);
         border-radius: 8px;
         padding: 10px 12px;
         cursor: pointer;
@@ -524,7 +538,10 @@ class AISummarizeWidget {
         transition: background 0.15s, border-color 0.15s;
         line-height: 1;
       }
-      #aisw-root .aisw-popover-btn:hover { background: #27272a; border-color: #3f3f46; }
+      #aisw-root .aisw-popover-btn:hover {
+        background: var(--aisw-pop-btn-hover);
+        border-color: var(--aisw-btn-hover-border);
+      }
       #aisw-root .aisw-popover[dir="rtl"] { text-align: right; }
       #aisw-root .aisw-popover[dir="ltr"] { text-align: left; }
 

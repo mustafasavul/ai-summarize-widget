@@ -26,6 +26,7 @@
     "type": "git",
     "url": "https://github.com/mustafasavul/ai-summarize-widget.git"
   },
+  "type": "module",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",

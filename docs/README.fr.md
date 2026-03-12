@@ -1,102 +1,122 @@
-```markdown
 # AI Summarize Widget ✨
 
-Un widget léger, optimisé pour le SEO et hautement personnalisable qui permet aux visiteurs de votre site d'envoyer vos articles à leurs assistants IA préférés (ChatGPT, Claude, Gemini, Perplexity) pour les résumer.
+Un petit widget CSS-safe qui permet aux visiteurs d'envoyer vos articles à **ChatGPT, Claude, Gemini ou Perplexity** en un clic.
 
-Développé avec l'esthétique **Shadcn UI**, l'extraction de contexte **JSON-LD (AIO)** et le **Mobile Native Deep Linking**.
-
-## 🚀 Fonctionnalités
-
-- 🛡️ **Pas de collage automatique :** Une fonctionnalité de collage manuel stricte évite toute troncature due à la limite d'URL.
-- 🔗 **Prise en charge AIO (AI SEO) :** Extrait automatiquement le schéma JSON-LD et les balises Meta pour injecter le nom du site, l'auteur et l'URL comme contexte pour l'IA.
-- 🧹 **Nettoyage intelligent :** Ignore les publicités, barres de navigation, barres latérales et commentaires. Extrait uniquement le corps pur de l'article.
-- 📱 **Mobile Deep Linking :** Contourne les bloqueurs de pop-ups mobiles et ouvre de manière fluide les applications IA natives (iOS/Android).
-- 🌍 **Multilingue et RTL :** Détecte automatiquement `en`, `tr`, `es`, `zh`, `de`, `fr`, `it`, `pt`, `ru`, `nl`. Prise en charge complète des mises en page RTL (`ar`, `fa`, `he`, `ur`).
-- 🎨 **Pas de fuite CSS :** Styles entièrement encapsulés qui ne conflueront jamais avec le CSS de votre site.
+📦 **NPM:** https://www.npmjs.com/package/ai-summarize-widget
 
 ---
 
-## 📦 Installation
+## ⚡ Installation en 5 minutes
 
-### Méthode 1 : Via CDN (Le plus simple pour HTML/JS pur)
-Ajoutez ce script dans votre HTML avant la balise fermante `</body>` :
+### Étape 1 — Ajoutez le script
+
+Collez cette ligne juste avant la balise fermante `</body>` de votre HTML :
 
 ```html
-<script src="[https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js](https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js)"></script>
-
+<script src="https://unpkg.com/ai-summarize-widget/dist/ai-summarize-widget.min.js"></script>
 ```
 
-### Méthode 2 : Via NPM (Pour React, Vue, Next.js)
-
-```bash
-npm install ai-summarize-widget
-
-```
-
-```javascript
-import AISummarizeWidget from 'ai-summarize-widget';
-
-```
+> **Vous utilisez NPM ?**
+> ```bash
+> npm install ai-summarize-widget
+> ```
+> ```js
+> import AISummarizeWidget from 'ai-summarize-widget';
+> ```
 
 ---
 
-## 💻 Utilisation et types d'implémentation
+### Étape 2 — Initialisez le widget
 
-Vous pouvez intégrer ce widget sur votre site de deux manières différentes selon vos besoins UI/UX.
+Ajoutez ceci juste en dessous du script. C'est tout !
 
-### Type 1 : Bouton flottant fixe et modal (par défaut)
+```html
+<script>
+  new AISummarizeWidget({
+    type: 'fixed',  // affiche un bouton ✨ flottant en bas à droite
+    lang: 'fr'
+  });
+</script>
+```
 
-Place un bouton d'action flottant (FAB) dans le coin de l'écran. Au clic, il ouvre un modal centré et élégant. Parfait pour les blogs et les articles de presse longs.
+Ouvrez votre page — un **bouton ✨** apparaîtra en bas à droite. Cliquez dessus, choisissez un assistant IA, le contenu est copié automatiquement et vous êtes redirigé.
+
+---
+
+## 🔧 Deux modes
+
+### Mode 1 : Bouton flottant + Modal (`type: 'fixed'`)
+
+Un bouton fixe dans le coin de l'écran. Un clic ouvre une fenêtre de dialogue centrée. **Idéal pour les blogs et les sites d'actualités.**
 
 ```html
 <script>
   new AISummarizeWidget({
     type: 'fixed',
-    position: 'bottom-right', // 'bottom-left', 'top-right', 'top-left'
-    buttonColor: '#4f46e5',   // Votre couleur de marque
-    lang: 'fr'                // Force le français (optionnel)
+    theme: 'auto',           // 'auto' | 'dark' | 'light'
+    buttonColor: '#4f46e5',  // n'importe quelle couleur hex
+    lang: 'fr'
   });
 </script>
-
 ```
 
-### Type 2 : Bouton inline et popover
+### Mode 2 : Bouton intégré + Popover (`type: 'inline'`)
 
-Injecte le bouton directement dans une partie spécifique de votre DOM (par ex. à côté de vos boutons de partage social ou de l'en-tête de l'article). Au clic, il ouvre un popover contextuel attaché au bouton.
+Injecte le bouton dans un élément existant de votre page (ex. à côté de vos boutons de partage).
 
 ```html
-<div class="my-share-buttons">
-    <button>Partager sur X</button>
-    </div>
+<!-- Vos boutons de partage existants -->
+<div class="zone-partage">
+  <button>Partager sur X</button>
+  <!-- ✨ le widget sera injecté ici -->
+</div>
 
 <script>
   new AISummarizeWidget({
     type: 'inline',
-    target: '.my-share-buttons', // Sélecteur CSS où le bouton doit apparaître
+    target: '.zone-partage',  // sélecteur CSS de l'élément cible
+    theme: 'dark',
     buttonColor: '#10b981'
   });
 </script>
-
 ```
 
 ---
 
-## ⚙️ Options de configuration
+## 🌗 Thème (`theme`)
 
-Vous pouvez facilement personnaliser le widget en passant un objet d'options lors de l'initialisation.
+| Valeur | Comportement |
+|---|---|
+| `'auto'` *(défaut)* | Suit le mode sombre/clair de l'OS et se met à jour en temps réel |
+| `'dark'` | Toujours sombre |
+| `'light'` | Toujours clair |
+
+---
+
+## ⚙️ Toutes les options
 
 | Option | Type | Défaut | Description |
-| --- | --- | --- | --- |
-| **`type`** | `String` | `'fixed'` | Le mode de rendu. Utilisez `'fixed'` pour un bouton/modal flottant, ou `'inline'` pour l'injecter dans un conteneur spécifique avec un popover. |
-| **`target`** | `String` | `null` | **Requis si `type` est `'inline'`.** Le sélecteur CSS de l'élément DOM où le bouton sera ajouté (ex. `'.article-actions'`). |
-| **`position`** | `String` | `'bottom-right'` | Positionnement pour le type `'fixed'`. Options : `'bottom-right'`, `'bottom-left'`, `'top-right'`, `'top-left'`. |
-| **`buttonColor`** | `String` | `'#4f46e5'` | Le code couleur HEX ou RGB pour les boutons et barres de progression du widget afin de correspondre à l'identité de votre marque. |
-| **`lang`** | `String` | *Détecté automatiquement* | Force une langue spécifique. Si omis, il lit automatiquement l'attribut `<html lang="x">` ou la langue du navigateur de l'utilisateur. |
-| **`redirectDelay`** | `Number` | `1200` | Le délai (en millisecondes) avant de rediriger l'utilisateur vers l'assistant IA, lui permettant de voir l'animation toast « Copié ». |
+|---|---|---|---|
+| `type` | `String` | `'fixed'` | `'fixed'` (bouton flottant + modal) ou `'inline'` (injection dans un conteneur) |
+| `theme` | `String` | `'auto'` | Thème couleur : `'auto'`, `'dark'`, `'light'` |
+| `target` | `String` | `null` | **Obligatoire pour `'inline'`**. Sélecteur CSS de l'élément où injecter le bouton |
+| `buttonColor` | `String` | `'#4f46e5'` | Couleur du bouton (HEX ou RGB) |
+| `lang` | `String` | *Auto-détecté* | Code langue : `'fr'`, `'en'`, `'de'`… Lit la langue du navigateur si non défini |
+| `redirectDelay` | `Number` | `1200` | Millisecondes avant la redirection vers l'assistant IA |
+
+---
+
+## 🚀 Fonctionnalités
+
+- 🌗 **Thème Dark / Light / Auto** — Bascule instantanément quand le thème OS change
+- 🛡️ **Zéro conflit CSS** — Tous les styles isolés sous `#aisw-root` avec `all: unset`. Compatible Tailwind, Bootstrap et tout reset global
+- 🔗 **AIO (SEO pour l'IA)** — Extrait automatiquement JSON-LD, OpenGraph et Twitter Card en tant que contexte du prompt IA
+- 🧹 **Extraction intelligente** — Supprime publicités, navigation, sidebars et commentaires. Corps de l'article uniquement
+- 📱 **Support mobile** — Contourne les bloqueurs de popups sur iOS/Android, ouvre les apps natives directement
+- 🌍 **Multilingue + RTL** — `fr`, `en`, `de`, `tr`, `es`, `zh`, `ru` et plus ; RTL complet pour `ar`, `fa`, `he`, `ur`
 
 ---
 
 ## 📄 Licence
 
-Licence MIT © 2026
-```
+MIT © 2026 Mustafa Savul

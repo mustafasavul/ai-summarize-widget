@@ -4,8 +4,6 @@ A tiny, CSS-safe widget that lets visitors send your articles to **ChatGPT, Clau
 
 📦 **NPM:** https://www.npmjs.com/package/ai-summarize-widget
 
-**Other languages:** [Türkçe](docs/README.tr.md) · [Deutsch](docs/README.de.md) · [Français](docs/README.fr.md) · [中文](docs/README.zh.md) · [العربية](docs/README.ar.md)
-
 ---
 
 ## ⚡ Setup in 5 Minutes
@@ -40,7 +38,7 @@ Add this right below the script tag. That's it!
 </script>
 ```
 
-Open your page — a **✨ button** will appear in the bottom-right corner. Click it, pick an AI assistant, the article content is automatically copied to your clipboard, and you're redirected.
+Open your page — a **✨ button** will appear in the bottom-right corner. Click it, pick an AI assistant, the article content is copied to your clipboard, and you're redirected automatically.
 
 ---
 
@@ -75,7 +73,7 @@ Injects the button into an existing element on your page (e.g., alongside your s
 <script>
   new AISummarizeWidget({
     type: 'inline',
-    target: '.share-area',   // CSS selector of the element to inject into
+    target: '.share-area',   // the element to inject into
     theme: 'dark',
     buttonColor: '#10b981'
   });
@@ -110,8 +108,8 @@ Injects the button into an existing element on your page (e.g., alongside your s
 ## 🚀 Features
 
 - 🌗 **Dark / Light / Auto Theme** — Switches instantly when the OS theme changes
-- 🛡️ **Zero CSS Conflict** — All styles scoped under `#aisw-root` with `all: unset` guards. Safe next to Tailwind, Bootstrap, or any global CSS reset
-- 🔗 **AIO (AI SEO)** — Auto-extracts JSON-LD, OpenGraph, and Twitter Card metadata and injects it as context into the AI prompt
+- 🛡️ **Zero CSS Conflict** — All styles are scoped under `#aisw-root` with `all: unset` guards. Safe next to Tailwind, Bootstrap, or any global reset
+- 🔗 **AIO (AI SEO)** — Auto-extracts JSON-LD, OpenGraph, and Twitter Card metadata and injects it into the AI prompt as context
 - 🧹 **Smart Content Extraction** — Strips ads, navbars, sidebars, and comments. Pure article body only
 - 📱 **Mobile Support** — Bypasses popup blockers on iOS/Android, opens native apps directly
 - 🌍 **Multi-Language + RTL** — `en`, `tr`, `de`, `fr`, `es`, `zh`, `ru` and more; full RTL for `ar`, `fa`, `he`, `ur`
