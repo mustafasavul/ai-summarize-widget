@@ -9,8 +9,9 @@ class AISummarizeWidget {
   constructor(options = {}) {
     // Initialize configuration with defaults
     this.options = {
-      type: options.type || 'fixed', // 'fixed' or 'inline'
-      target: options.target || null, // CSS selector for 'inline'
+      type: options.type || 'fixed',            // 'fixed' or 'inline'
+      target: options.target || null,            // CSS selector for 'inline'
+      theme: options.theme || 'auto',            // 'auto' | 'light' | 'dark'
       buttonColor: options.buttonColor || '#4f46e5',
       lang: (options.lang || document.documentElement.lang || navigator.language || 'en').substring(0, 2).toLowerCase(),
       redirectDelay: 1200,
@@ -39,9 +40,32 @@ class AISummarizeWidget {
   }
 
   init() {
+    this.root = document.createElement('div');
+    this.root.id = 'aisw-root';
     this.injectStyles();
+    this.applyTheme();
     this.createDom();
     this.attachGlobalEvents();
+  }
+
+  // Apply theme class to root based on options.theme
+  applyTheme() {
+    const { theme } = this.options;
+    if (theme === 'dark') {
+      this.root.classList.add('aisw-dark');
+    } else if (theme === 'light') {
+      this.root.classList.add('aisw-light');
+    } else {
+      // 'auto': CSS media query handles most of it;
+      // also add a runtime listener so dynamic OS changes work instantly.
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const sync = (e) => {
+        this.root.classList.toggle('aisw-dark', e.matches);
+        this.root.classList.toggle('aisw-light', !e.matches);
+      };
+      sync(mq); // apply immediately
+      mq.addEventListener('change', sync);
+    }
   }
 
   // Handle global events (ESC key & Resize)
@@ -156,58 +180,409 @@ class AISummarizeWidget {
     return text.replace(/\n{3,}/g, '\n\n').trim();
   }
 
-  // Inject encapsulated CSS 
+  // Inject encapsulated CSS – all rules are scoped inside #aisw-root to prevent
+  // host-page styles from bleeding in. The card uses an isolation layer via
+  // a dedicated CSS custom-property namespace and explicit property resets.
   injectStyles() {
     if (document.getElementById('ai-sum-styles')) return;
-    
+
     const css = `
-      /* TYPE 1: Fixed Floating Button & Modal (Light Theme) */
-      .aisw-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: ${this.options.buttonColor}; color: white; border: none; cursor: pointer; z-index: 99999; box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-size: 26px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-      .aisw-fab:hover { transform: scale(1.1); }
-      .aisw-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 100000; align-items: center; justify-content: center; animation: aiswFadeIn 0.2s ease-out; }
-      .aisw-modal.active { display: flex; }
-      .aisw-card { background: white; padding: 32px; border-radius: 20px; width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); font-family: ui-sans-serif, system-ui, sans-serif; transform: scale(0.95); opacity: 0; transition: all 0.2s ease-out; }
-      .aisw-modal.active .aisw-card { transform: scale(1); opacity: 1; }
-      .aisw-card[dir="rtl"] { text-align: right; }
-      .aisw-card[dir="ltr"] { text-align: left; }
-      .aisw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
-      .aisw-btn { padding: 14px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; cursor: pointer; transition: 0.2s; font-weight: 600; font-size: 15px; color: #1f2937; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-      .aisw-btn:hover { background: #f9fafb; border-color: #d1d5db; transform: translateY(-1px); }
-      .aisw-footer { display: flex; justify-content: flex-end; margin-top: 24px; }
-      .aisw-secondary-btn { padding: 10px 24px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; cursor: pointer; transition: 0.2s; font-weight: 500; font-size: 14px; color: #4b5563; }
-      .aisw-secondary-btn:hover { background: #f3f4f6; border-color: #d1d5db; color: #1f2937; }
+      /* ─── DESIGN TOKENS ─── */
 
-      /* TYPE 2: Inline Button & Popover (Dark Theme from Reference) */
-      .aisw-inline-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; background: ${this.options.buttonColor}; color: white; border: none; cursor: pointer; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 600; font-size: 14px; transition: opacity 0.2s; }
-      .aisw-inline-btn:hover { opacity: 0.9; }
-      
-      .aisw-popover { display: none; position: absolute; z-index: 100000; background: #09090b; border: 1px solid #27272a; border-radius: 12px; padding: 16px; min-width: 220px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); font-family: ui-sans-serif, system-ui, sans-serif; color: #fafafa; opacity: 0; transform: translateY(10px); transition: all 0.2s ease; }
-      .aisw-popover.active { display: block; opacity: 1; transform: translateY(0); }
-      .aisw-popover-header { margin-bottom: 12px; }
-      .aisw-popover-title { margin: 0; font-size: 16px; font-weight: 600; }
-      .aisw-popover-grid { display: flex; flex-direction: column; gap: 8px; }
-      .aisw-popover-btn { background: #09090b; border: 1px solid #27272a; color: #fafafa; border-radius: 6px; padding: 10px 12px; cursor: pointer; font-weight: 500; font-size: 14px; transition: background 0.2s; }
-      .aisw-popover-btn:hover { background: #27272a; }
-      .aisw-popover[dir="rtl"] { text-align: right; }
-      .aisw-popover[dir="ltr"] { text-align: left; }
+      /* Light defaults */
+      #aisw-root {
+        --aisw-overlay: rgba(0,0,0,0.55);
+        --aisw-card-bg: #ffffff;
+        --aisw-card-border: rgba(0,0,0,0.08);
+        --aisw-text: #09090b;
+        --aisw-muted: #71717a;
+        --aisw-sep: #f4f4f5;
+        --aisw-btn-bg: #fafafa;
+        --aisw-btn-border: #e4e4e7;
+        --aisw-btn-hover-bg: #f0f0f2;
+        --aisw-btn-hover-border: #c4c4c8;
+        --aisw-btn-color: #18181b;
+        --aisw-secondary-bg: transparent;
+        --aisw-secondary-color: #71717a;
+        --aisw-secondary-border: #e4e4e7;
+        --aisw-secondary-hover-bg: #f4f4f5;
+        --aisw-secondary-hover-border: #d4d4d8;
+        --aisw-secondary-hover-color: #3f3f46;
+        --aisw-card-shadow:
+          0 0 0 1px rgba(0,0,0,0.04),
+          0 4px 6px -1px rgba(0,0,0,0.06),
+          0 20px 32px -8px rgba(0,0,0,0.14);
+      }
 
-      /* Common Toast Notification */
-      .aisw-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 16px 32px; border-radius: 50px; z-index: 100001; transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 20px 40px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 15px; overflow: hidden; }
-      .aisw-toast.show { top: 40px; }
-      .aisw-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #10b981; transition: width 1.2s linear; width: 0%; }
-      .aisw-toast[dir="rtl"] .aisw-bar { right: 0; left: auto; }
+      /* Dark – forced via .aisw-dark class */
+      #aisw-root.aisw-dark {
+        --aisw-overlay: rgba(0,0,0,0.75);
+        --aisw-card-bg: #09090b;
+        --aisw-card-border: rgba(255,255,255,0.08);
+        --aisw-text: #fafafa;
+        --aisw-muted: #a1a1aa;
+        --aisw-sep: #27272a;
+        --aisw-btn-bg: #18181b;
+        --aisw-btn-border: #27272a;
+        --aisw-btn-hover-bg: #27272a;
+        --aisw-btn-hover-border: #3f3f46;
+        --aisw-btn-color: #fafafa;
+        --aisw-secondary-bg: transparent;
+        --aisw-secondary-color: #a1a1aa;
+        --aisw-secondary-border: #27272a;
+        --aisw-secondary-hover-bg: #18181b;
+        --aisw-secondary-hover-border: #3f3f46;
+        --aisw-secondary-hover-color: #e4e4e7;
+        --aisw-card-shadow:
+          0 0 0 1px rgba(255,255,255,0.04),
+          0 4px 6px -1px rgba(0,0,0,0.3),
+          0 20px 32px -8px rgba(0,0,0,0.5);
+      }
 
-      @keyframes aiswFadeIn { from { opacity: 0; } to { opacity: 1; } }
+      /* ─── SCOPING LAYER: every rule lives under #aisw-root ─── */
+
+      /* FAB */
+      #aisw-root .aisw-fab {
+        all: unset;
+        box-sizing: border-box;
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: ${this.options.buttonColor};
+        color: #fff;
+        cursor: pointer;
+        z-index: 2147483640;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.25), 0 1px 4px rgba(0,0,0,0.15);
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1),
+                    box-shadow 0.2s ease;
+        line-height: 1;
+      }
+      #aisw-root .aisw-fab:hover {
+        transform: scale(1.08);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+      }
+      #aisw-root .aisw-fab:active { transform: scale(0.96); }
+
+      /* MODAL OVERLAY */
+      #aisw-root .aisw-modal {
+        all: unset;
+        box-sizing: border-box;
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: var(--aisw-overlay);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 2147483641;
+        align-items: center;
+        justify-content: center;
+      }
+      #aisw-root .aisw-modal.active {
+        display: flex;
+        animation: aiswOverlayIn 0.18s ease-out both;
+      }
+
+      /* DIALOG CARD */
+      #aisw-root .aisw-card {
+        all: unset;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+                     Roboto, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--aisw-text);
+        background: var(--aisw-card-bg);
+        padding: 24px;
+        border-radius: 16px;
+        width: min(90vw, 420px);
+        border: 1px solid var(--aisw-card-border);
+        box-shadow: var(--aisw-card-shadow);
+        transform: scale(0.96) translateY(6px);
+        opacity: 0;
+        transition: transform 0.22s cubic-bezier(0.34,1.36,0.64,1),
+                    opacity 0.18s ease;
+        display: block;
+      }
+      #aisw-root .aisw-modal.active .aisw-card {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+      #aisw-root .aisw-card[dir="rtl"] { text-align: right; }
+      #aisw-root .aisw-card[dir="ltr"] { text-align: left; }
+
+      /* CARD HEADER */
+      #aisw-root .aisw-card-header {
+        all: unset;
+        box-sizing: border-box;
+        display: block;
+        margin-bottom: 6px;
+      }
+      #aisw-root .aisw-card-title {
+        all: unset;
+        box-sizing: border-box;
+        display: block;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--aisw-text);
+        letter-spacing: -0.3px;
+        line-height: 1.3;
+      }
+      #aisw-root .aisw-card-desc {
+        all: unset;
+        box-sizing: border-box;
+        display: block;
+        font-size: 13px;
+        color: var(--aisw-muted);
+        margin-top: 5px;
+        line-height: 1.5;
+      }
+
+      /* SEPARATOR */
+      #aisw-root .aisw-sep {
+        all: unset;
+        box-sizing: border-box;
+        display: block;
+        height: 1px;
+        background: var(--aisw-sep);
+        margin: 18px 0;
+      }
+
+      /* AI PROVIDER GRID */
+      #aisw-root .aisw-grid {
+        all: unset;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      /* AI PROVIDER BUTTONS */
+      #aisw-root .aisw-btn {
+        all: unset;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 11px 14px;
+        border: 1px solid var(--aisw-btn-border);
+        border-radius: 10px;
+        background: var(--aisw-btn-bg);
+        cursor: pointer;
+        transition:
+          background 0.15s ease,
+          border-color 0.15s ease,
+          box-shadow 0.15s ease,
+          transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--aisw-btn-color);
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      #aisw-root .aisw-btn:hover {
+        background: var(--aisw-btn-hover-bg);
+        border-color: var(--aisw-btn-hover-border);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transform: translateY(-1px);
+      }
+      #aisw-root .aisw-btn:active { transform: translateY(0) scale(0.97); }
+
+      /* AI ICON BADGE */
+      #aisw-root .aisw-btn-icon {
+        all: unset;
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+      #aisw-root .aisw-btn-icon--chatgpt  { background: #10a37f; color: #fff; }
+      #aisw-root .aisw-btn-icon--claude    { background: #d97706; color: #fff; }
+      #aisw-root .aisw-btn-icon--gemini    { background: linear-gradient(135deg,#4285f4,#9b72cb); color: #fff; }
+      #aisw-root .aisw-btn-icon--perplexity{ background: #1fb8ac; color: #fff; }
+
+      /* FOOTER */
+      #aisw-root .aisw-footer {
+        all: unset;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 18px;
+      }
+      #aisw-root .aisw-secondary-btn {
+        all: unset;
+        box-sizing: border-box;
+        padding: 8px 18px;
+        border: 1px solid var(--aisw-secondary-border);
+        border-radius: 8px;
+        background: var(--aisw-secondary-bg);
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--aisw-secondary-color);
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        line-height: 1;
+      }
+      #aisw-root .aisw-secondary-btn:hover {
+        background: var(--aisw-secondary-hover-bg);
+        border-color: var(--aisw-secondary-hover-border);
+        color: var(--aisw-secondary-hover-color);
+      }
+
+      /* ─── TYPE 2: INLINE POPOVER (Dark) ─── */
+      #aisw-root .aisw-inline-btn {
+        all: unset;
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 15px;
+        border-radius: 8px;
+        background: ${this.options.buttonColor};
+        color: #fff;
+        cursor: pointer;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+                     Roboto, sans-serif;
+        font-weight: 600;
+        font-size: 13.5px;
+        line-height: 1;
+        transition: opacity 0.15s, transform 0.15s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      }
+      #aisw-root .aisw-inline-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+      #aisw-root .aisw-popover {
+        all: unset;
+        box-sizing: border-box;
+        display: none;
+        position: absolute;
+        z-index: 2147483641;
+        background: #09090b;
+        border: 1px solid #27272a;
+        border-radius: 14px;
+        padding: 16px;
+        min-width: 230px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.45), 0 1px 3px rgba(0,0,0,0.3);
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+                     Roboto, sans-serif;
+        color: #fafafa;
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+        transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.36,0.64,1);
+      }
+      #aisw-root .aisw-popover.active {
+        display: block;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      #aisw-root .aisw-popover-header { margin-bottom: 12px; }
+      #aisw-root .aisw-popover-title {
+        all: unset;
+        box-sizing: border-box;
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+        color: #fafafa;
+        letter-spacing: -0.2px;
+      }
+      #aisw-root .aisw-popover-grid {
+        all: unset;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      #aisw-root .aisw-popover-btn {
+        all: unset;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: #18181b;
+        border: 1px solid #27272a;
+        color: #fafafa;
+        border-radius: 8px;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 500;
+        font-size: 13.5px;
+        transition: background 0.15s, border-color 0.15s;
+        line-height: 1;
+      }
+      #aisw-root .aisw-popover-btn:hover { background: #27272a; border-color: #3f3f46; }
+      #aisw-root .aisw-popover[dir="rtl"] { text-align: right; }
+      #aisw-root .aisw-popover[dir="ltr"] { text-align: left; }
+
+      /* ─── TOAST ─── */
+      #aisw-root .aisw-toast {
+        all: unset;
+        box-sizing: border-box;
+        position: fixed;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #18181b;
+        color: #fafafa;
+        padding: 13px 26px;
+        border-radius: 100px;
+        z-index: 2147483647;
+        transition: top 0.45s cubic-bezier(0.68,-0.55,0.265,1.55);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+                     Roboto, sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        overflow: hidden;
+        white-space: nowrap;
+        border: 1px solid #27272a;
+      }
+      #aisw-root .aisw-toast.show { top: 20px; }
+      #aisw-root .aisw-bar {
+        all: unset;
+        box-sizing: border-box;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        background: #22c55e;
+        transition: width 1.2s linear;
+        width: 0%;
+        border-radius: 0 0 100px 100px;
+      }
+      #aisw-root .aisw-toast[dir="rtl"] .aisw-bar { right: 0; left: auto; }
+
+      /* ─── KEYFRAMES ─── */
+      @keyframes aiswOverlayIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
     `;
-    const style = document.createElement("style");
-    style.id = "ai-sum-styles";
-    style.innerText = css;
+
+    const style = document.createElement('style');
+    style.id = 'ai-sum-styles';
+    style.textContent = css;
     document.head.appendChild(style);
   }
 
   createDom() {
-    this.root = document.createElement('div');
-    this.root.id = "aisw-root";
     const dir = this.isRTL ? 'rtl' : 'ltr';
 
     if (this.options.type === 'fixed') {
@@ -218,13 +593,24 @@ class AISummarizeWidget {
         <button class="aisw-fab" id="aiswFab">✨</button>
         <div class="aisw-modal" id="aiswModal">
           <div class="aisw-card" dir="${dir}">
-            <h3 style="margin:0; font-size:20px; font-weight: 700; color:#111827;">${this.t.title}</h3>
-            <p style="font-size:14px; color:#6b7280; margin-top:8px; line-height: 1.5;">${this.t.desc}</p>
+            <div class="aisw-card-header">
+              <span class="aisw-card-title">${this.t.title}</span>
+              <span class="aisw-card-desc">${this.t.desc}</span>
+            </div>
+            <div class="aisw-sep"></div>
             <div class="aisw-grid">
-              <button class="aisw-btn" data-id="chatgpt">ChatGPT</button>
-              <button class="aisw-btn" data-id="claude">Claude</button>
-              <button class="aisw-btn" data-id="gemini">Gemini</button>
-              <button class="aisw-btn" data-id="perplexity">Perplexity</button>
+              <button class="aisw-btn" data-id="chatgpt">
+                <span class="aisw-btn-icon aisw-btn-icon--chatgpt">C</span>ChatGPT
+              </button>
+              <button class="aisw-btn" data-id="claude">
+                <span class="aisw-btn-icon aisw-btn-icon--claude">A</span>Claude
+              </button>
+              <button class="aisw-btn" data-id="gemini">
+                <span class="aisw-btn-icon aisw-btn-icon--gemini">G</span>Gemini
+              </button>
+              <button class="aisw-btn" data-id="perplexity">
+                <span class="aisw-btn-icon aisw-btn-icon--perplexity">P</span>Perplexity
+              </button>
             </div>
             <div class="aisw-footer">
               <button id="aiswClose" class="aisw-secondary-btn">${this.t.cancel}</button>
@@ -252,13 +638,21 @@ class AISummarizeWidget {
       const popoverHtml = `
         <div class="aisw-popover" id="aiswPopover" dir="${dir}">
           <div class="aisw-popover-header">
-            <h4 class="aisw-popover-title">${this.t.title}</h4>
+            <span class="aisw-popover-title">${this.t.title}</span>
           </div>
           <div class="aisw-popover-grid">
-            <button class="aisw-popover-btn" data-id="chatgpt">ChatGPT</button>
-            <button class="aisw-popover-btn" data-id="claude">Claude</button>
-            <button class="aisw-popover-btn" data-id="gemini">Gemini</button>
-            <button class="aisw-popover-btn" data-id="perplexity">Perplexity</button>
+            <button class="aisw-popover-btn" data-id="chatgpt">
+              <span class="aisw-btn-icon aisw-btn-icon--chatgpt">C</span>ChatGPT
+            </button>
+            <button class="aisw-popover-btn" data-id="claude">
+              <span class="aisw-btn-icon aisw-btn-icon--claude">A</span>Claude
+            </button>
+            <button class="aisw-popover-btn" data-id="gemini">
+              <span class="aisw-btn-icon aisw-btn-icon--gemini">G</span>Gemini
+            </button>
+            <button class="aisw-popover-btn" data-id="perplexity">
+              <span class="aisw-btn-icon aisw-btn-icon--perplexity">P</span>Perplexity
+            </button>
           </div>
         </div>
       `;
@@ -300,7 +694,7 @@ class AISummarizeWidget {
     // Common Toast Injection
     const toastHtml = `
       <div id="aiswToast" class="aisw-toast" dir="${dir}">
-        <span style="color:#10b981">✔</span>
+        <span style="color:#22c55e;font-size:15px">✔</span>
         <span id="aiswToastMsg">${this.t.toast}</span>
         <div id="aiswBar" class="aisw-bar"></div>
       </div>
